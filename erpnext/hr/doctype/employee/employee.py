@@ -4,7 +4,7 @@
 from __future__ import unicode_literals
 import frappe
 
-from frappe.utils import getdate, validate_email_add, cint
+from frappe.utils import getdate, validate_email_add, cint,cstr
 from frappe.model.naming import make_autoname
 from frappe import throw, _, msgprint
 import frappe.permissions
@@ -203,8 +203,188 @@ def validate_employee_role(doc, method):
 			frappe.msgprint("Please set User ID field in an Employee record to set Employee Role")
 			doc.get("user_roles").remove(doc.get("user_roles", {"role": "Employee"})[0])
 
+def validate_validity(doc, method):
+	frappe.errprint("validate validity")
+	from frappe.utils import get_url, cstr
+	frappe.errprint(get_url())
+	frappe.errprint("validate validity")
+	if doc.get("__islocal") and get_url()!='http://smarttailor':
+		frappe.errprint("is local and not smarttailor")
+	 	res = frappe.db.sql("select name from `tabUser` where name='Administrator' and no_of_users >0")
+	 	frappe.errprint(res)
+	 	if  res:
+	 			frappe.errprint("in res if")
+	 			frappe.db.sql("update `tabUser`set no_of_users=no_of_users-1  where name='Administrator'")
+				from frappe.utils import nowdate,add_months,cint
+		else:
+			res1 = frappe.db.sql("select count(name) from `tabUser`")
+			frappe.errprint("else res1 ")
+			frappe.errprint(res1)
+	 		if res1 and res1[0][0]==2:
+	 			frappe.errprint("else if")
+	 			#frappe.db.sql("update `tabUser`set no_of_users=no_of_users-1  where name='Administrator'")
+				from frappe.utils import nowdate,add_months,cint
+				doc.validity_start_date=nowdate()
+				doc.validity_end_date=add_months(nowdate(),1)
+			else:	
+	 			frappe.throw(_("Your User Creation limit is exceeded . Please contact administrator"))
+
+	elif(get_url()!='http://smarttailor'):
+		frappe.errprint("updating existing user not smarttailor")
+		if doc.add_validity:
+			frappe.errprint("updating existing user not smarttailor")
+			res1 = frappe.db.sql("select validity from `tabUser Validity` where user_name>0 and name=%s",doc.add_validity)
+			frappe.errprint(res1)
+			if res1:
+				frappe.errprint("else res1 ")
+				frappe.errprint("update user validity")
+				from frappe.utils import nowdate,add_months,cint
+				doc.add_validity=''
+				frappe.errprint("user validity")
+				frappe.errprint(doc.add_validity)
+				frappe.errprint("user validity1")
+				doc.validity_start_date=nowdate()
+				doc.validity_end_date=add_months(nowdate(),cint(res1[0][0]))
+
 def update_user_permissions(doc, method):
 	# called via User hook
 	if "Employee" in [d.role for d in doc.get("user_roles")]:
 		employee = frappe.get_doc("Employee", {"user_id": doc.name})
 		employee.update_user_permissions()
+
+def update_users(doc, method):
+	#doc.add_validity=''
+	from frappe.utils import get_url, cstr
+	if get_url()=='http://smarttailor':
+		frappe.errprint("reassigning supprot ticket to admin for disables users")
+		if not doc.enabled :
+			frappe.errprint(doc.name)
+			abc=frappe.db.sql("""select name from `tabUser` where name=%s and enabled=0""", doc.name)
+			frappe.errprint(abc)
+			if abc:
+				frappe.db.sql("""update `tabSupport Ticket` set assign_to='Administrator' where assign_to=%s""",doc.name)
+				frappe.errprint("updated")
+
+def create_support():
+	frappe.errprint("creating suppoert tickets")
+	import requests
+	import json
+	pr2 = frappe.db.sql("""select site_name from `tabSubAdmin Info` """)
+	for site_name in pr2:
+		db_name=cstr(site_name[0]).split('.')[0]
+		db_name=db_name[:16]
+		abx="select name from `"+cstr(db_name)+"`.`tabSupport Ticket` where flag='false'"
+		frappe.errprint(abx)
+		pr3 = frappe.db.sql(abx)
+		for sn in pr3:
+		 		login_details = {'usr': 'Administrator', 'pwd': 'admin'}
+		 		url = 'http://smarttailor/api/method/login'
+		 		headers = {'content-type': 'application/x-www-form-urlencoded'}
+		 		response = requests.post(url, data='data='+json.dumps(login_details), headers=headers)
+		 		test = {}
+		 		url="http://"+cstr(site_name[0])+"/api/resource/Support Ticket/"+cstr(sn[0])
+		 		response = requests.get(url)
+				support_ticket = eval(response.text).get('data')
+				del support_ticket['name']
+				del support_ticket['creation']
+				del support_ticket['modified']
+				del support_ticket['company']
+				url = 'http://smarttailor/api/resource/Support Ticket'
+				headers = {'content-type': 'application/x-www-form-urlencoded'}
+				response = requests.post(url, data='data='+json.dumps(support_ticket), headers=headers)
+				url="http://"+cstr(site_name[0])+"/api/resource/Support Ticket/"+cstr(sn[0])
+				support_ticket={}
+				support_ticket['flag']='True'
+				frappe.errprint('data='+json.dumps(support_ticket))
+				response = requests.put(url, data='data='+json.dumps(support_ticket), headers=headers)
+
+def create_feedback():
+	frappe.errprint("creating feed back")
+	import requests
+	import json
+	pr2 = frappe.db.sql("""select site_name from `tabSubAdmin Info`""")
+	for site_name in pr2:
+		#frappe.errprint(site_name)
+		db_name=cstr(site_name[0]).split('.')[0]
+		db_name=db_name[:16]
+		abx="select name from `"+cstr(db_name)+"`.`tabFeed Back` where flag='false'"
+		pr3 = frappe.db.sql(abx)
+		for sn in pr3:
+		 		login_details = {'usr': 'Administrator', 'pwd': 'admin'}
+		 		url = 'http://smarttailor/api/method/login'
+		 		headers = {'content-type': 'application/x-www-form-urlencoded'}
+		 		response = requests.post(url, data='data='+json.dumps(login_details), headers=headers)
+		 		test = {}
+		 		url="http://"+cstr(site_name[0])+"/api/resource/Feed Back/"+cstr(sn[0])
+		 		response = requests.get(url)
+				support_ticket = eval(response.text).get('data')
+				del support_ticket['name']
+				del support_ticket['creation']
+				del support_ticket['modified']
+				url = 'http://smarttailor/api/resource/Feed Back'
+				headers = {'content-type': 'application/x-www-form-urlencoded'}
+				response = requests.post(url, data='data='+json.dumps(support_ticket), headers=headers)
+				url="http://"+cstr(site_name[0])+"/api/resource/Feed Back/"+cstr(sn[0])
+				support_ticket={}
+				support_ticket['flag']='True'
+				response = requests.put(url, data='data='+json.dumps(support_ticket), headers=headers)
+
+def add_validity():
+		frappe.errprint("in add validity function")
+		import requests
+		import json
+		from frappe.utils import nowdate, cstr,cint, flt, now, getdate, add_months
+		pr1 = frappe.db.sql("""select site_name from `tabSite Master` """)
+		for pr in pr1:
+			if pr[0].find('.')!= -1:
+				db=pr[0].split('.')[0][:16]
+			else:
+				db=pr[0][:16]
+			qry="select validity from `"+cstr(db)+"`.`tabUser` where name='administrator' and validity>0 "
+			pp1 = frappe.db.sql(qry)
+			if pp1 :
+				headers = {'content-type': 'application/x-www-form-urlencoded'}
+				sup={'usr':'administrator','pwd':'admin'}
+				url = 'http://'+pr[0]+'/api/method/login'
+				response = requests.get(url, data=sup, headers=headers)
+				qry1="select name from `"+cstr(db)+"`.`tabUser` where validity_end_date <CURDATE()"
+				pp2 = frappe.db.sql(qry1)
+				for pp in pp2:
+					dt=add_months(getdate(nowdate()), cint(pp1[0][0]))
+					vldt={}				
+					vldt['validity_start_date']=cstr(nowdate())
+					vldt['validity_end_date']=cstr(dt)
+					url = 'http://'+pr[0]+'/api/resource/User/'+cstr(name)
+					response = requests.put(url, data='data='+json.dumps(vldt), headers=headers)
+				qry2="select name,validity_end_date from `"+cstr(db)+"`.`tabUser` where validity_end_date >=CURDATE()"
+				pp3 = frappe.db.sql(qry2)
+				for name,validity_end_date in pp3:
+					dt=add_months(getdate(validity_end_date), cint(pp1[0][0]))
+					vldt={}				
+					vldt['validity_end_date']=cstr(dt)
+					url = 'http://'+pr[0]+'/api/resource/User/'+cstr(name)
+					response = requests.put(url, data='data='+json.dumps(vldt), headers=headers)
+				vldt={}
+				vldt['validity']='0'
+				url = 'http://'+pr[0]+'/api/resource/User/administrator'
+				response = requests.put(url, data='data='+json.dumps(vldt), headers=headers)		
+
+def disable_user():
+	frappe.errprint("in disable user ")
+	import requests
+	import json
+	pr2 = frappe.db.sql("""select site_name from `tabSubAdmin Info`""")
+	for site_name in pr2:
+		db_name=cstr(site_name[0]).split('.')[0]
+		db_name=db_name[:16]
+		abx="select name from `"+cstr(db_name)+"`.`tabUser` where validity_end_date<=CURDATE()"
+		pr3 = frappe.db.sql(abx)
+		for sn in pr3:
+				headers = {'content-type': 'application/x-www-form-urlencoded'}
+				sup={'usr':'administrator','pwd':'admin'}
+				url = 'http://'+cstr(site_name[0])+'/api/method/login'
+				response = requests.get(url, data=sup, headers=headers)
+		 		url="http://"+cstr(site_name[0])+"/api/resource/User/"+cstr(sn[0])
+		 		support_ticket={}
+				support_ticket['enabled']=0
+				response = requests.put(url, data='data='+json.dumps(support_ticket), headers=headers)

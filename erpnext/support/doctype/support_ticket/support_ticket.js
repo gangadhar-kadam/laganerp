@@ -9,6 +9,30 @@ frappe.provide("erpnext.support");
 cur_frm.add_fetch("customer", "customer_name", "customer_name")
 
 $.extend(cur_frm.cscript, {
+	onload: function(doc, dt, dn) {
+		if(in_list(user_roles,'System Manager')) {
+			cur_frm.footer.help_area.innerHTML = '<p><a href="#Form/Support Email Settings/Support Email Settings">'+__("Support Email Settings")+'</a><br>\
+				<span class="help">'+__("Integrate incoming support emails to Support Ticket")+'</span></p>';
+		}
+		var usr=''
+		if(doc.__islocal && user=='Administrator') {				
+				frappe.call({
+				method: "erpnext.support.doctype.support_ticket.support_ticket.get_admin",
+				args: {
+					name: cur_frm.doc.name				
+				},
+				callback: function(r) {
+					alert(r.message);
+					usr=r.message;
+					cur_frm.doc.raised_by=usr;
+				}
+				})		
+		}
+		else {			
+				doc.raised_by=user;
+		}
+	},
+	
 	refresh: function(doc) {
 		erpnext.toggle_naming_series();
 		cur_frm.cscript.make_listing(doc);
@@ -71,4 +95,24 @@ $.extend(cur_frm.cscript, {
 	}
 
 })
+
+cur_frm.cscript.assign_in_future = function(){
+
+		frappe.call({
+			method: "erpnext.support.doctype.support_ticket.support_ticket.assing_future",
+			args: {
+				name: cur_frm.doc.name,
+				assign_in_future: cur_frm.doc.assign_in_future,
+				raised_by:cur_frm.doc.raised_by,
+				assign_to:cur_frm.doc.assign_to
+			},
+			callback: function(r) {
+				
+			}
+		})	
+	
+     }
+
+
+
 
