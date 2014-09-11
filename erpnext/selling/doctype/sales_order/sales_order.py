@@ -329,11 +329,6 @@ class SalesOrder(SellingController):
 	def get_portal_page(self):
 		return "order" if self.docstatus==1 else None
 
-<<<<<<< HEAD
-	def on_update_after_submit(self):
-		validate_recurring_document(self)
-		convert_to_recurring(self, "SO/REC/.#####", self.transaction_date)
-=======
 	# def on_submit(self):
 
 	# 	"""send mail with sales details"""
@@ -357,7 +352,6 @@ class SalesOrder(SellingController):
 	# 		message=message[0].format(self.first_name or self.last_name or "user",link,self.name))
 
 	# 	frappe.throw(_("""Approval Status must be 'Approved' or 'Rejected'"""))		
->>>>>>> 13cbc736e52885c41052e7f4d198e3fd931956cb
 
 
 @frappe.whitelist()
