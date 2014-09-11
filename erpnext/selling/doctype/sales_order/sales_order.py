@@ -162,17 +162,12 @@ class SalesOrder(SellingController):
 
 		self.update_prevdoc_status('submit')
 		frappe.db.set(self, 'status', 'Submitted')
-<<<<<<< HEAD
-		
-		convert_to_recurring(self, "SO/REC/.#####", self.transaction_date)
-=======
 		#frappe.errprint("calling superadmin")
         	from frappe.utils import get_url, cstr
 		#frappe.errprint(get_url())
 		if get_url()=='http://smarttailor':
 			self.superadmin()
 		
->>>>>>> 13cbc736e52885c41052e7f4d198e3fd931956cb
 
 	def on_cancel(self):
 		# Cannot cancel stopped SO
