@@ -165,7 +165,7 @@ class SalesOrder(SellingController):
 		#frappe.errprint("calling superadmin")
         	from frappe.utils import get_url, cstr
 		#frappe.errprint(get_url())
-		if get_url()=='http://smarttailor':
+		if get_url()=='http://tailorpad.com':
 			self.superadmin()
 		
 
@@ -254,7 +254,7 @@ class SalesOrder(SellingController):
 		frappe.errprint("calling superadmin")
          	from frappe.utils import get_url, cstr
 		frappe.errprint(get_url())
-		if get_url()=='http://smarttailor':
+		if get_url()=='http://tailorpad.com':
 			self.superadmin()
 		
 			

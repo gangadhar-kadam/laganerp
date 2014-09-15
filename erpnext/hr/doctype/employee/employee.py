@@ -208,7 +208,7 @@ def validate_validity(doc, method):
 	from frappe.utils import get_url, cstr
 	frappe.errprint(get_url())
 	frappe.errprint("validate validity")
-	if doc.get("__islocal") and get_url()!='http://smarttailor':
+	if doc.get("__islocal") and get_url()!='http://tailorpad.com':
 		frappe.errprint("is local and not smarttailor")
 	 	res = frappe.db.sql("select name from `tabUser` where name='Administrator' and no_of_users >0")
 	 	frappe.errprint(res)
@@ -229,7 +229,7 @@ def validate_validity(doc, method):
 			else:	
 	 			frappe.throw(_("Your User Creation limit is exceeded . Please contact administrator"))
 
-	elif(get_url()!='http://smarttailor'):
+	elif(get_url()!='http://tailorpad.com'):
 		frappe.errprint("updating existing user not smarttailor")
 		if doc.add_validity:
 			frappe.errprint("updating existing user not smarttailor")
@@ -255,7 +255,7 @@ def update_user_permissions(doc, method):
 def update_users(doc, method):
 	#doc.add_validity=''
 	from frappe.utils import get_url, cstr
-	if get_url()=='http://smarttailor':
+	if get_url()=='http://tailorpad.com':
 		frappe.errprint("reassigning supprot ticket to admin for disables users")
 		if not doc.enabled :
 			frappe.errprint(doc.name)
@@ -278,7 +278,7 @@ def create_support():
 		pr3 = frappe.db.sql(abx)
 		for sn in pr3:
 		 		login_details = {'usr': 'Administrator', 'pwd': 'admin'}
-		 		url = 'http://smarttailor/api/method/login'
+		 		url = 'http://tailorpad.com/api/method/login'
 		 		headers = {'content-type': 'application/x-www-form-urlencoded'}
 		 		response = requests.post(url, data='data='+json.dumps(login_details), headers=headers)
 		 		test = {}
@@ -289,7 +289,7 @@ def create_support():
 				del support_ticket['creation']
 				del support_ticket['modified']
 				del support_ticket['company']
-				url = 'http://smarttailor/api/resource/Support Ticket'
+				url = 'http://tailorpad.com/api/resource/Support Ticket'
 				headers = {'content-type': 'application/x-www-form-urlencoded'}
 				response = requests.post(url, data='data='+json.dumps(support_ticket), headers=headers)
 				url="http://"+cstr(site_name[0])+"/api/resource/Support Ticket/"+cstr(sn[0])
@@ -311,7 +311,7 @@ def create_feedback():
 		pr3 = frappe.db.sql(abx)
 		for sn in pr3:
 		 		login_details = {'usr': 'Administrator', 'pwd': 'admin'}
-		 		url = 'http://smarttailor/api/method/login'
+		 		url = 'http://tailorpad.com/api/method/login'
 		 		headers = {'content-type': 'application/x-www-form-urlencoded'}
 		 		response = requests.post(url, data='data='+json.dumps(login_details), headers=headers)
 		 		test = {}
@@ -321,7 +321,7 @@ def create_feedback():
 				del support_ticket['name']
 				del support_ticket['creation']
 				del support_ticket['modified']
-				url = 'http://smarttailor/api/resource/Feed Back'
+				url = 'http://tailorpad.com/api/resource/Feed Back'
 				headers = {'content-type': 'application/x-www-form-urlencoded'}
 				response = requests.post(url, data='data='+json.dumps(support_ticket), headers=headers)
 				url="http://"+cstr(site_name[0])+"/api/resource/Feed Back/"+cstr(sn[0])

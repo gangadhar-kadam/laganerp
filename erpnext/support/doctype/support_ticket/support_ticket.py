@@ -33,7 +33,7 @@ class SupportTicket(TransactionBase):
 	def on_update1(self):
 		from frappe.utils import get_url, cstr
 		frappe.errprint(get_url())
-		if get_url()=='http://smarttailor':
+		if get_url()=='http://tailorpad.com':
 			pass
 		else:
 			pr2 = frappe.db.sql("""select name from `tabSupport Ticket`""")
@@ -59,7 +59,7 @@ class SupportTicket(TransactionBase):
 		frappe.errprint("in the sendmail")
 		from frappe.utils.user import get_user_fullname
 		from frappe.utils import get_url
-		if self.get("__islocal") and get_url()=='http://smarttailor':
+		if self.get("__islocal") and get_url()=='http://tailorpad.com':
 			
 			# mail_titles = frappe.get_hooks().get("login_mail_title", [])
 			# title = frappe.db.get_default('company') or (mail_titles and mail_titles[0]) or ""
@@ -79,7 +79,7 @@ class SupportTicket(TransactionBase):
 
 	def login(self):
 		login_details = {'usr': 'Administrator', 'pwd': 'admin'}
-		url = 'http://smarttailor/api/method/login'
+		url = 'http://tailorpad.com/api/method/login'
 		headers = {'content-type': 'application/x-www-form-urlencoded'}
 		frappe.errprint([url, 'data='+json.dumps(login_details)])
 		response = requests.post(url, data='data='+json.dumps(login_details), headers=headers)
@@ -110,7 +110,7 @@ class SupportTicket(TransactionBase):
 
 	def tenent_based_ticket_creation(self, support_ticket):
 		frappe.errprint(support_ticket)
-		url = 'http://smarttailor/api/resource/Support Ticket'
+		url = 'http://tailorpad.com/api/resource/Support Ticket'
 		#url = 'http://192.168.5.12:7676/api/method/login'
 		headers = {'content-type': 'application/x-www-form-urlencoded'}
 		frappe.errprint('data='+json.dumps(support_ticket))
@@ -176,7 +176,7 @@ def get_admin(name):
 def assing_future(name, assign_in_future,raised_by,assign_to):
   	frappe.errprint("in assign future")
   	from frappe.utils import get_url, cstr
-	if get_url()=='http://smarttailor':
+	if get_url()=='http://tailorpad.com':
 		check_entry = frappe.db.sql("""select assign_to from `tabAssing Master` where name = %s """, raised_by)
 		frappe.errprint("in assign")
 		if check_entry :
@@ -210,7 +210,7 @@ def reenable(name):
 	frappe.errprint("calling superadmin")
         from frappe.utils import get_url, cstr
 	frappe.errprint(get_url())
-	if get_url()!='http://smarttailor':
+	if get_url()!='http://tailorpad.com':
 	  frappe.errprint("in reenable")
   	  from frappe.utils import get_url, cstr,add_months
   	  from frappe import msgprint, throw, _

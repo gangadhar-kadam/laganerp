@@ -15,7 +15,7 @@ class FeedBack(Document):
 		# def validate(self):
 		# 	from frappe.utils import get_url, cstr
 		# 	frappe.errprint("validate")
-		# 	if self.get("__islocal") and get_url()!='http://smarttailor':
+		# 	if self.get("__islocal") and get_url()!='http://tailorpad.com':
 		# 		frappe.errprint("local")
 		# 		pr2 = frappe.db.sql("""select name from `tabFeed Back`""")
 		# 		frappe.errprint("is feed back saved")
@@ -35,7 +35,7 @@ class FeedBack(Document):
 		# def login(self):
 		# 	frappe.errprint("in login")
 		# 	login_details = {'usr': 'Administrator', 'pwd': 'admin'}
-		# 	url = 'http://smarttailor/api/method/login'
+		# 	url = 'http://tailorpad.com/api/method/login'
 		# 	headers = {'content-type': 'application/x-www-form-urlencoded'}
 		# 	frappe.errprint([url, 'data='+json.dumps(login_details)])
 		# 	response = requests.post(url, data='data='+json.dumps(login_details), headers=headers)
@@ -64,7 +64,7 @@ class FeedBack(Document):
 
 		# def tenent_based_ticket_creation(self, support_ticket):
 		# 	frappe.errprint(support_ticket)
-		# 	url = 'http://smarttailor/api/resource/Feed Back'
+		# 	url = 'http://tailorpad.com/api/resource/Feed Back'
 		# 	#url = 'http://192.168.5.12:7676/api/method/login'
 		# 	headers = {'content-type': 'application/x-www-form-urlencoded'}
 		# 	frappe.errprint('data='+json.dumps(support_ticket))
@@ -72,7 +72,7 @@ class FeedBack(Document):
 
 		def validate(self):
 			from frappe.utils import get_url, cstr
-			if self.get("__islocal") and get_url()=='http://smarttailor':
+			if self.get("__islocal") and get_url()=='http://tailorpad.com':
 				msg="Dear "+self.raised_by+"!<br><br>Thank you for your precious feedback. <br><br>We are continuously working to improve the system ,your feedback is essential for improvement of system. <br><br>Regards,  <br>Team TailorPad."
 				frappe.errprint("in the send")
 				frappe.errprint(self.get('customer_information'))

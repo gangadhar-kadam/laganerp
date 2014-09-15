@@ -55,7 +55,7 @@ def get_leads():
 def assign_support():
 	frappe.errprint("assign suppoert tickets")
 	from frappe.utils import get_url, cstr
-	if get_url()=='http://smarttailor':
+	if get_url()=='http://tailorpad.com':
 		check_entry = frappe.db.sql("""select name,raised_by from `tabSupport Ticket` where assign_to is null and raised_by is not null and status<>'Closed'""")
 		#frappe.errprint(check_entry)
 		for name,raised_by in check_entry :

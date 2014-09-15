@@ -36,7 +36,7 @@ class Lead(SellingController):
 				# Lead Owner cannot be same as the Lead
 				self.lead_owner = None
 		from frappe.utils import get_url, cstr
-		if self.get("__islocal") and get_url()=='http://smarttailor':
+		if self.get("__islocal") and get_url()=='http://tailorpad.com':
 			frappe.errprint("creating site from lead")
 			frappe.get_doc({
 					"doctype": "Site Master",
