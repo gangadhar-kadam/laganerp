@@ -10,10 +10,10 @@ cur_frm.add_fetch("customer", "customer_name", "customer_name")
 
 $.extend(cur_frm.cscript, {
 	onload: function(doc, dt, dn) {
-		if(in_list(user_roles,'System Manager')) {
+		/*if(in_list(user_roles,'System Manager')) {
 			cur_frm.footer.help_area.innerHTML = '<p><a href="#Form/Support Email Settings/Support Email Settings">'+__("Support Email Settings")+'</a><br>\
 				<span class="help">'+__("Integrate incoming support emails to Support Ticket")+'</span></p>';
-		}
+		}*/
 		var usr=''
 		if(doc.__islocal && user=='Administrator') {				
 				frappe.call({
