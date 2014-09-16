@@ -1,5 +1,6 @@
 {
-  "autoname": "naming_series:", 
+ "allow_attach": 1, 
+ "autoname": "naming_series:", 
  "creation": "2013-02-01 10:36:25", 
  "docstatus": 0, 
  "doctype": "DocType", 
@@ -91,11 +92,6 @@
    "label": "Thread HTML", 
    "permlevel": 0, 
    "read_only": 1
-  }, 
-  {
-   "fieldname": "fold", 
-   "fieldtype": "Fold", 
-   "permlevel": 0
   }, 
   {
    "fieldname": "additional_info", 
@@ -237,11 +233,37 @@
    "options": "Communication", 
    "permlevel": 0, 
    "print_hide": 1
+  }, 
+  {
+   "default": "", 
+   "fieldname": "assign_to", 
+   "fieldtype": "Link", 
+   "ignore_user_permissions": 1, 
+   "label": "Assign to", 
+   "options": "User", 
+   "permlevel": 0
+  }, 
+  {
+   "default": "", 
+   "fieldname": "assign_in_future", 
+   "fieldtype": "Select", 
+   "label": "Auto assign similar tickets", 
+   "options": "\nNo\nYes", 
+   "permlevel": 1
+  }, 
+  {
+   "default": "false", 
+   "fieldname": "flag", 
+   "fieldtype": "Data", 
+   "hidden": 0, 
+   "label": "flag", 
+   "options": "\ntrue\nfalse", 
+   "permlevel": 0
   }
  ], 
  "icon": "icon-ticket", 
  "idx": 1, 
- "modified": "2014-08-12 05:25:45.420934", 
+ "modified": "2014-09-08 12:06:08.440823", 
  "modified_by": "Administrator", 
  "module": "Support", 
  "name": "Support Ticket", 
@@ -286,6 +308,20 @@
    "report": 1, 
    "role": "Support Team", 
    "submit": 0, 
+   "write": 1
+  }, 
+  {
+   "create": 1, 
+   "delete": 1, 
+   "permlevel": 0, 
+   "read": 1, 
+   "role": "Super Admin", 
+   "write": 1
+  }, 
+  {
+   "permlevel": 1, 
+   "read": 1, 
+   "role": "Super Admin", 
    "write": 1
   }
  ], 

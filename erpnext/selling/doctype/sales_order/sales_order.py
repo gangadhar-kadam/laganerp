@@ -4,14 +4,10 @@
 from __future__ import unicode_literals
 import frappe
 import frappe.utils
-
-from frappe.utils import cstr, flt, getdate, comma_and
-
+import json
+from frappe.utils import cstr, cint,flt, getdate, comma_and
 from frappe import _
 from frappe.model.mapper import get_mapped_doc
-
-from erpnext.controllers.recurring_document import convert_to_recurring, validate_recurring_document
-
 from erpnext.controllers.selling_controller import SellingController
 
 form_grid_templates = {
@@ -82,8 +78,8 @@ class SalesOrder(SellingController):
 		super(SalesOrder, self).validate_order_type()
 
 	def validate_delivery_date(self):
-		if self.order_type == 'Sales' and not self.delivery_date:
-			frappe.throw(_("Please enter 'Expected Delivery Date'"))
+		# if self.order_type == 'Sales' and not self.delivery_date:
+		# frappe.throw(_("Please enter 'Expected Delivery Date'"))
 
 		self.validate_sales_mntc_quotation()
 
@@ -96,6 +92,7 @@ class SalesOrder(SellingController):
 				frappe.throw(_("Customer {0} does not belong to project {1}").format(self.customer, self.project_name))
 
 	def validate(self):
+		#frappe.errprint("in the validate of sales order")
 		super(SalesOrder, self).validate()
 
 		self.validate_order_type()
@@ -165,8 +162,12 @@ class SalesOrder(SellingController):
 
 		self.update_prevdoc_status('submit')
 		frappe.db.set(self, 'status', 'Submitted')
+		#frappe.errprint("calling superadmin")
+        	from frappe.utils import get_url, cstr
+		#frappe.errprint(get_url())
+		if get_url()=='http://tailorpad.com':
+			self.superadmin()
 		
-		convert_to_recurring(self, "SO/REC/.#####", self.transaction_date)
 
 	def on_cancel(self):
 		# Cannot cancel stopped SO
@@ -250,14 +251,107 @@ class SalesOrder(SellingController):
 				update_bin(args)
 
 	def on_update(self):
-		pass
+		frappe.errprint("calling superadmin")
+         	from frappe.utils import get_url, cstr
+		frappe.errprint(get_url())
+		if get_url()=='http://tailorpad.com':
+			self.superadmin()
+		
+			
+
+	def superadmin(self):
+		frappe.errprint("in super admin")
+		import requests
+		import json
+		pr1 = frappe.db.sql("""select site_name,email_id__if_administrator,country from `tabSite Master` where client_name=%s""",self.customer)
+		st=pr1 and pr1[0][0] or ''
+		eml=pr1 and pr1[0][1] or ''
+		cnt=pr1 and pr1[0][2] or ''
+		val=usr=0
+		#frappe.errprint(val)
+		headers = {'content-type': 'application/x-www-form-urlencoded'}
+		sup={'usr':'administrator','pwd':'admin'}
+		url = 'http://'+st+'/api/method/login'
+		frappe.errprint(url)
+		response = requests.get(url, data=sup, headers=headers)
+		frappe.errprint(response.text)
+		if st.find('.')!= -1:
+			db=st.split('.')[0][:16]
+		else:
+			db=st[:16]
+		frappe.errprint(db)
+		item_code = frappe.db.sql("""select item_code from `tabSales Order Item` where parent = %s """, self.name)
+		for ic in item_code:
+			qr="select no_of_users,validity from `tabItem` where name = '"+cstr(ic[0])+"'"
+			pro = frappe.db.sql(qr)
+			frappe.errprint(pro)
+			if (pro [0][0]== 0) and (pro[0][1]>0):
+				frappe.errprint("0 and >0")
+				vldt={}
+				vldt['validity']=pro[0][1]
+				vldt['country']=cnt
+				vldt['email_id_admin']=eml
+				url = 'http://'+st+'/api/resource/User/Administrator'
+				frappe.errprint(url)
+				frappe.errprint('data='+json.dumps(vldt))
+				response = requests.put(url, data='data='+json.dumps(vldt), headers=headers)
+				frappe.errprint("responce")
+				frappe.errprint(response.text)
+			elif (pro [0][0]>0 ) and (pro[0][1]==0):
+				frappe.errprint(">0 and 0")
+				vldtt={}
+				vldtt['no_of_users']=pro[0][0]
+				vldtt['country']=cnt
+				vldtt['email_id_admin']=eml
+				url = 'http://'+st+'/api/resource/User/Administrator'
+				frappe.errprint(url)
+				frappe.errprint('data='+json.dumps(vldtt))
+				response = requests.put(url, data='data='+json.dumps(vldtt), headers=headers)
+				frappe.errprint("responce")
+				frappe.errprint(response.text)				
+			elif (pro [0][0]> 0) and (pro[0][1]>0):
+				frappe.errprint(" >0 and >0")
+				user_val={}
+				user_val['validity']=pro [0][1]
+				user_val['user_name']=pro [0][0]
+				user_val['flag']='false'
+				url = 'http://'+st+'/api/resource/User Validity'
+				frappe.errprint(url)
+				frappe.errprint('data='+json.dumps(user_val))
+				response = requests.post(url, data='data='+json.dumps(user_val), headers=headers)
+				frappe.errprint("responce")
+				frappe.errprint(response.text)		
+			else:
+				frappe.errprint("0 and 0")
+				
+
 
 	def get_portal_page(self):
 		return "order" if self.docstatus==1 else None
 
-	def on_update_after_submit(self):
-		validate_recurring_document(self)
-		convert_to_recurring(self, "SO/REC/.#####", self.transaction_date)
+	# def on_submit(self):
+
+	# 	"""send mail with sales details"""
+
+	# 	from frappe.utils.user import get_user_fullname
+	# 	# from frappe.utils import get_url
+	# 	# mail_titles = frappe.get_hooks().get("login_mail_title", [])
+	# 	title = frappe.db.get_default('company') or (mail_titles and mail_titles[0]) or ""
+
+	# 	full_name = get_user_fullname(frappe.session['user'])
+	# 	if full_name == "Guest":
+	# 		full_name = "Administrator"
+
+	# 	message = frappe.db.sql_list("""select message from `tabTemplate Types`
+	# 	where event_type='Sales Order Submit'""")
+	# 	frappe.errprint(message[0])
+	# 	# frappe.errprint(message[0].format(self.first_name or self.last_name or "user",link,self.name,full_name))
+
+	# 	sender = frappe.session.user not in STANDARD_USERS and frappe.session.user or None
+	# 	frappe.sendmail(recipients=self.email, sender=sender, subject=subject,
+	# 		message=message[0].format(self.first_name or self.last_name or "user",link,self.name))
+
+	# 	frappe.throw(_("""Approval Status must be 'Approved' or 'Rejected'"""))		
 
 
 @frappe.whitelist()

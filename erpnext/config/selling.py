@@ -46,6 +46,12 @@ def get_data():
 					"name": "Item",
 					"description": _("All Products or Services."),
 				},
+				{
+					"type": "doctype",
+					"name": "Site Master",
+					"description": _("Customer Site Master."),
+				},
+				
 			]
 		},
 		{
@@ -196,6 +202,7 @@ def get_data():
 					"doctype": "Customer",
 					"icon": "icon-bar-chart",
 				},
+				
 			]
 		},
 		{
@@ -276,6 +283,7 @@ def get_data():
 					"name": "Pending SO Items For Purchase Request",
 					"doctype": "Sales Order"
 				},
+
 			]
 		},
 	]
