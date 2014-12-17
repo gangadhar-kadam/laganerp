@@ -1,5 +1,4 @@
 {
- "allow_attach": 1, 
  "allow_copy": 0, 
  "allow_import": 0, 
  "allow_rename": 0, 
@@ -168,7 +167,7 @@
    "print_hide": 0, 
    "read_only": 0, 
    "report_hide": 0, 
-   "reqd": 1, 
+   "reqd": 0, 
    "search_index": 0, 
    "set_only_once": 0
   }, 
@@ -412,7 +411,7 @@
  "is_submittable": 1, 
  "issingle": 0, 
  "istable": 0, 
- "modified": "2014-09-02 08:55:45.879981", 
+ "modified": "2014-12-09 17:35:43.565282", 
  "modified_by": "Administrator", 
  "module": "Support", 
  "name": "Feed Back", 

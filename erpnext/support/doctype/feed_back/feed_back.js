@@ -15,21 +15,32 @@ console.log("in tjhe sen js");
 
 $.extend(cur_frm.cscript, {
 	onload: function(doc, dt, dn) {
-		var usr=''
-		if(doc.__islocal && user=='Administrator') {				
-				frappe.call({
-				method: "erpnext.support.doctype.support_ticket.support_ticket.get_admin",
-				args: {
-					name: cur_frm.doc.name				
-				},
-				callback: function(r) {
-					usr=r.message;
-					cur_frm.doc.raised_by=usr;
-				}
-				})		
-		}
-		else {			
-				doc.raised_by=user;
-		}
+                var usr=''
+                if(doc.__islocal && user=='Administrator') {
+                                //console.log("local and admin");
+                                frappe.call({
+                                method: "erpnext.support.doctype.support_ticket.support_ticket.get_admin",
+                                args: {
+                                        name: cur_frm.doc.name
+                                },
+                                callback: function(r) {
+                                        //alert(r.message);
+                                        usr=r.message;
+                                        doc.raised_by=r.message;
+                                        //console.log(doc.raised_by)
+                                        //console.log(r.message)
+                                        refresh_field('raised_by');
+                                }
+                                })
+                        cur_frm.toggle_display("send", false);
+			cur_frm.toggle_display("reply_to_feedback", false);    
+        		cur_frm.toggle_display("assign_to", false);
+
+                }
+                else if (doc.__islocal && user!='Administrator'){
+                       // console.log("local and not admin");
+                        doc.raised_by=user;
+                }
+  		
 	}
 })

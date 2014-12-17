@@ -15,8 +15,15 @@ cur_frm.cscript.sales_team_fname = "sales_team";
 erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend({
 	refresh: function(doc, dt, dn) {
 		this._super();
-		this.frm.dashboard.reset();
-
+    		this.frm.dashboard.reset();
+		//var lct=window.location;
+		if (window.location.origin=='http://stich1.tailorpad.com'){
+		cur_frm.toggle_display("from_date", false);
+		cur_frm.toggle_display("to_date", false);
+		cur_frm.toggle_display("po_no", false);
+		cur_frm.toggle_display("delivery_date", false);
+		doc.delivery_date=transaction_date
+		}
 		if(doc.docstatus==1) {
 			if(doc.status != 'Stopped') {
 

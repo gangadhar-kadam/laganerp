@@ -1,12 +1,12 @@
 app_name = "erpnext"
-app_title = "ERPNext"
-app_publisher = "Web Notes Technologies Pvt. Ltd. and Contributors"
+app_title = "TailorPad"
+app_publisher = "TailorPad and Contributors"
 app_description = "Open Source Enterprise Resource Planning for Small and Midsized Organizations"
 app_icon = "icon-th"
 app_color = "#e74c3c"
 app_version = "4.4.0"
 
-error_report_email = "support@erpnext.com"
+error_report_email = "support@tailorpad.com"
 
 app_include_js = ["assets/js/erpnext.min.js","assets/js/chart.js"]
 app_include_css = "assets/css/erpnext.css"
@@ -67,11 +67,13 @@ scheduler_events = {
 		"erpnext.support.doctype.support_ticket.get_support_mails.get_support_mails",
 		"erpnext.hr.doctype.job_applicant.get_job_applications.get_job_applications",
 		"erpnext.selling.doctype.lead.get_leads.get_leads",
-		"erpnext.hr.doctype.employee.employee.create_support",
-		"erpnext.hr.doctype.employee.employee.create_feedback",
-		"erpnext.selling.doctype.lead.get_leads.assign_support",
-		"erpnext.hr.doctype.employee.employee.disable_user",
-		"erpnext.hr.doctype.employee.employee.add_validity"
+		"erpnext.setup.doctype.site_master.site_master.multitenanct",
+		"erpnext.setup.doctype.site_master.site_master.create_support",
+		"erpnext.setup.doctype.site_master.site_master.create_feedback",
+		"erpnext.setup.doctype.site_master.site_master.assign_support",
+		"erpnext.setup.doctype.site_master.site_master.disable_user",
+		"erpnext.setup.doctype.site_master.site_master.add_validity",
+		
 	],
 	"daily": [
 		"erpnext.controllers.recurring_document.create_recurring_documents",

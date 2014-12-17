@@ -119,7 +119,7 @@ class SalesOrder(SellingController):
 		if not self.billing_status: self.billing_status = 'Not Billed'
 		if not self.delivery_status: self.delivery_status = 'Not Delivered'
 
-		validate_recurring_document(self)
+		#validate_recurring_document(self)
 
 	def validate_warehouse(self):
 		from erpnext.stock.utils import validate_warehouse_company
@@ -165,7 +165,7 @@ class SalesOrder(SellingController):
 		#frappe.errprint("calling superadmin")
         	from frappe.utils import get_url, cstr
 		#frappe.errprint(get_url())
-		if get_url()=='http://tailorpad.com':
+		if get_url()=='http://stich1.tailorpad.com':
 			self.superadmin()
 		
 
@@ -250,15 +250,6 @@ class SalesOrder(SellingController):
 				}
 				update_bin(args)
 
-	def on_update(self):
-		frappe.errprint("calling superadmin")
-         	from frappe.utils import get_url, cstr
-		frappe.errprint(get_url())
-		if get_url()=='http://tailorpad.com':
-			self.superadmin()
-		
-			
-
 	def superadmin(self):
 		frappe.errprint("in super admin")
 		import requests
@@ -275,6 +266,7 @@ class SalesOrder(SellingController):
 		frappe.errprint(url)
 		response = requests.get(url, data=sup, headers=headers)
 		frappe.errprint(response.text)
+		frappe.errprint("logged in new site for update")
 		if st.find('.')!= -1:
 			db=st.split('.')[0][:16]
 		else:

@@ -16,6 +16,7 @@ class FeedBack(Document):
 		# 	from frappe.utils import get_url, cstr
 		# 	frappe.errprint("validate")
 		# 	if self.get("__islocal") and get_url()!='http://tailorpad.com':
+
 		# 		frappe.errprint("local")
 		# 		pr2 = frappe.db.sql("""select name from `tabFeed Back`""")
 		# 		frappe.errprint("is feed back saved")
@@ -71,8 +72,9 @@ class FeedBack(Document):
 		# 	response = requests.post(url, data='data='+json.dumps(support_ticket), headers=headers)
 
 		def validate(self):
+			frappe.errprint("in the validate")
 			from frappe.utils import get_url, cstr
-			if self.get("__islocal") and get_url()=='http://tailorpad.com':
+			if not self.get("__islocal"):
 				msg="Dear "+self.raised_by+"!<br><br>Thank you for your precious feedback. <br><br>We are continuously working to improve the system ,your feedback is essential for improvement of system. <br><br>Regards,  <br>Team TailorPad."
 				frappe.errprint("in the send")
 				frappe.errprint(self.get('customer_information'))

@@ -9,7 +9,6 @@ from frappe.utils import now, extract_email_id
 import json
 import requests
 
-from frappe.utils import cint
 
 STANDARD_USERS = ("Guest", "Administrator")
 
@@ -32,7 +31,7 @@ class SupportTicket(TransactionBase):
 		return "ticket"
 
 	def on_update1(self):
-		#self.send_email();
+		self.send_email();
 		frappe.errprint("in the update")
 		from frappe.utils import get_url, cstr
 		frappe.errprint(get_url())
@@ -55,9 +54,8 @@ class SupportTicket(TransactionBase):
 				frappe.errprint(support_ticket)
 				self.tenent_based_ticket_creation(support_ticket)
 
-	def on_update(self):
-		frappe.errprint("in tyhje on")
-		self.send_email()	
+	#def on_update(self):
+		# self.send_email()	
 
 	def send_email(self):
 		frappe.errprint("in the sendmail")
@@ -67,9 +65,7 @@ class SupportTicket(TransactionBase):
 			
 			# mail_titles = frappe.get_hooks().get("login_mail_title", [])
 			# title = frappe.db.get_default('company') or (mail_titles and mail_titles[0]) or ""
-		frappe.errprint("self.get(__islocal")
-		frappe.errprint(cint(self.get("__islocal")))
-		if not self.get("__islocal"):
+		if self.get("__islocal") :
 			frappe.errprint("in the if")
 			full_name = get_user_fullname(frappe.session['user'])
 			if full_name == "Guest":
@@ -81,8 +77,8 @@ class SupportTicket(TransactionBase):
 			msg="Dear  "+first_name[0]+"!<br><br>Support Ticket is created successfully for '"+self.subject+"'<br><br>Your Support Ticket Number is '"+self.name+"' <br><br>Please note for further information. <br><br>Regards, <br>Team TailorPad."
 			sender = frappe.session.user not in STANDARD_USERS and frappe.session.user or None
 			frappe.errprint("before send")
-			frappe.sendmail(recipients=self.raised_by, sender=sender, subject=self.subject,	message=msg)
-
+			frappe.sendmail(recipients=self.raised_by, sender=sender, subject=self.subject,
+				message=msg)
 
 
 	def login(self):

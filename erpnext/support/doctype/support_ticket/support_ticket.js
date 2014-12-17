@@ -15,21 +15,28 @@ $.extend(cur_frm.cscript, {
 				<span class="help">'+__("Integrate incoming support emails to Support Ticket")+'</span></p>';
 		}*/
 		var usr=''
-		if(doc.__islocal && user=='Administrator') {				
+		if(doc.__islocal && user=='Administrator') {
+				//console.log("local and admin");
 				frappe.call({
 				method: "erpnext.support.doctype.support_ticket.support_ticket.get_admin",
 				args: {
 					name: cur_frm.doc.name				
 				},
 				callback: function(r) {
-					alert(r.message);
+					//alert(r.message);
 					usr=r.message;
-					cur_frm.doc.raised_by=usr;
+					doc.raised_by=r.message;
+					//console.log(doc.raised_by)
+					//console.log(r.message)
+					refresh_field('raised_by');
 				}
-				})		
+				})
+			//doc.raised_by=usr;
+			//console.log(doc.raised_by)		
 		}
-		else {			
-				doc.raised_by=user;
+		else if (doc.__islocal && user!='Administrator'){
+			//console.log("local and not admin");	
+			doc.raised_by=user;
 		}
 	},
 	
@@ -48,6 +55,15 @@ $.extend(cur_frm.cscript, {
 			cur_frm.toggle_display("description", false);
 		}
 		refresh_field('status');
+		if (in_list(user_roles, 'Super Admin')) {
+			//alert("super admin logged in");	
+			cur_frm.toggle_display("customer_name", false);
+			cur_frm.toggle_display("contact", false);
+			//cur_frm.toggle_display("purchase_details", false);
+		}
+		else{
+			cur_frm.toggle_display("assign_in_future", false);
+		}
 	},
 
 	make_listing: function(doc) {
@@ -97,7 +113,7 @@ $.extend(cur_frm.cscript, {
 })
 
 cur_frm.cscript.assign_in_future = function(){
-
+		console.log(cur_frm.doc.raised_by)
 		frappe.call({
 			method: "erpnext.support.doctype.support_ticket.support_ticket.assing_future",
 			args: {
@@ -112,7 +128,3 @@ cur_frm.cscript.assign_in_future = function(){
 		})	
 	
      }
-
-
-
-

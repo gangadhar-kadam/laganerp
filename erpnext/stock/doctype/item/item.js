@@ -50,7 +50,7 @@ cur_frm.cscript.refresh = function(doc) {
 		cur_frm.toggle_display("item_name", false);
 		cur_frm.toggle_display("item_group", false);
 		cur_frm.set_value("item_group", 'Products');
-		cur_frm.set_value("default_warehouse", 'Finished Goods - ind');
+		cur_frm.set_value("default_warehouse", 'Finished Goods - T');
 		
 	}
 	else {
