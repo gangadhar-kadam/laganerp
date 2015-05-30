@@ -21,13 +21,13 @@ class SiteMaster(Document):
 
 
 def multitenanct(from_test=False):
-   frappe.errprint("creation site")
-   res=frappe.db.sql("""select name from `tabSite Master` where flag=0 limit 1 """)
-   frappe.errprint(res)
-   if res:
+    frappe.errprint("creation site -------------------------------- ")
+    res=frappe.db.sql("""select name,client_name,email_id__if_administrator from `tabSite Master` where flag=0 limit 1 """)
+    if res:
         sites=''
         sites = frappe.db.sql("""select sites from  `tabUser` where name='administrator'""")
-        #print sites
+        print sites
+        print 'gangadharkadam'
         auto_commit = not from_test
         ste=res[0][0]
         from frappe.utils import cstr
@@ -39,12 +39,22 @@ def multitenanct(from_test=False):
         import json
         from distutils.spawn import find_executable
         from frappe.utils.email_lib import sendmail
-        cwd='/home/indictrans/'
+        cwd='/home/gangadhar/Documents/gnkuper/frappe-bench/'
+        print cwd
         cmd="./testenv.sh "+ste
-        qr="select email_id__if_administrator from `tabSite Master` where name='"+ste+"'"
+        print cwd
+        qr="select email_id__if_administrator,client_name from `tabSite Master` where name='"+ste+"'"
         rs=frappe.db.sql(qr)
-        msg1="Hello , <br> your site is created . following are the details of your site <br> 'http://"+ste+"' <br> user name :-administrator<br> password :- admin<br>Regards,<br>Tailorpad.com"
-        sendmail(rs[0][0], subject='Welcome to Tailorpad', msg = msg1)
+
+        frappe.errprint("hello gangadhar")
+        from frappe.utils.email_lib import sendmail
+        etemp=frappe.db.sql("select subject,message from `tabTemplate Types` where name='Successful first purchase'")
+        #frappe.errprint(etemp)
+        msg=etemp[0][1].replace('first_name',rs[0][1]).replace('user_name','administrator').replace('password','admin').replace('click here',ste)
+        sendmail(rs[0][0], subject=etemp[0][0], msg = msg)
+
+        #msg1="Hello "+res[0][1]+", <br> Welcome to TailorPad! <br> Thank you for showing interest. You can use the following link and credentials for trying TailorPad:<br> 'http://"+ste+"' <br> user name :-administrator<br> password :- admin<br>In case you need any more information about our product, please visit FAQ page or write to us on support@tailorpad.com, we will be glad to assist you.<br>Best Regards,<br>Team TailorPad"
+        #sendmail(rs[0][0], subject='Welcome to Tailorpad', msg = msg1)
         import subprocess
         frappe.errprint(cmd)
         #subprocess.call(['cd /home/indictrans/webapps/tailorpad/'])
@@ -56,47 +66,74 @@ def multitenanct(from_test=False):
         except subprocess.CalledProcessError, e:
                 print "Error:", e.output
                 raise
+        print 'creating nginx'
         nginx="""
-                upstream frappe {
-                server 192.168.0.104:7893 fail_timeout=0;
-                }
-                server {
-                        listen 80 ;
-                        client_max_body_size 4G;
-                        server_name stich1.tailorpad.com stitch2.tailorpad.com %s;
-                        keepalive_timeout 5;
-                        sendfile on;
-                        root /home/indictrans/webapps/tailorpad/frappe-bench/sites;
-                        location /private/ {
-                                internal;
-                                try_files /$uri =424;
-                        }
-                        location /assets {
-                                try_files $uri =404;
-                        }
+        upstream frappe {
+        server 127.0.0.1:8000 fail_timeout=0;
+        }
+        server {
+        listen 80 ;
+        client_max_body_size 4G;
+        server_name stich1.tailorpad.com %s;
+        keepalive_timeout 5;
+        sendfile on;
+        root /home/gangadhar/Documents/gnkuper/frappe-bench/sites;
 
-                        location / {
-                                try_files /test/public/$uri @magic;
-                        }
+        location /private/ {
+            internal;
+            try_files /$uri =424;
+        }
 
-                        location @magic {
-                                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                                proxy_set_header Host $host;
-                                proxy_set_header X-Use-X-Accel-Redirect True;
-                                proxy_read_timeout 120;
-                                proxy_redirect off;
-                                proxy_pass  http://frappe;
-                        }
-                }"""%(sites)
-        #with open("/home/indictrans/webapps/tailorpad/frappe-bench/config/nginx.conf","w") as conf_file:
-        #               conf_file.write(nginx)
-        #cwd='/home/'
-        #cmd='echo indictrans | sudo service nginx reload'
-        #try:
-        #       subprocess.check_call(cmd, cwd=cwd, shell=True)
-        #except subprocess.CalledProcessError, e:
-        #       print "Error:", e.output
-        #       raise   
+        location /assets {
+            try_files $uri =404;
+        }
+
+        location / {
+            try_files /stich1.tailorpad.com/public/$uri @magic;
+        }
+
+        location @magic {
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                        proxy_set_header Host $host;
+                        proxy_set_header X-Use-X-Accel-Redirect True;
+            proxy_read_timeout 120;
+            proxy_redirect off;
+            proxy_pass  http://frappe;
+        }
+        }"""%(sites)
+        print nginx
+        with open("/home/gangadhar/Documents/gnkuper/frappe-bench/config/nginx.conf","w") as conf_file:
+                       conf_file.write(nginx)
+        cwd='/home/'
+        cmd='echo indictrans | sudo service nginx reload'
+        print 'nginx reloading'
+        try:
+               subprocess.check_call(cmd, cwd=cwd, shell=True)
+        except subprocess.CalledProcessError, e:
+               print "Error:", e.output
+               raise
+        print "nginx reloaded"
+        host="""
+        127.0.0.1       localhost
+        127.0.1.1       gangadhar-OptiPlex-360
+        127.0.0.1       %s
+
+
+        # The following lines are desirable for IPv6 capable hosts
+        ::1     ip6-localhost ip6-loopback
+        fe00::0 ip6-localnet
+        ff00::0 ip6-mcastprefix
+        ff02::1 ip6-allnodes
+        ff02::2 ip6-allrouters
+       	"""%(sites)
+        print host
+        with open("/home/gangadhar/Documents/gnkuper/frappe-bench/config/hosts","w") as hosts_file:
+            hosts_file.write(host)
+        print 'written hosts nin setup'
+        os.system('echo indictrans | sudo -S cp /home/gangadhar/Documents/gnkuper/frappe-bench/config/hosts /etc/hosts')
+        print "reloaded hosts hosts"
+        from frappe.utils import nowdate,add_months,cint
+        en_dt=add_months(nowdate(),1)
         from frappe.utils import nowdate,add_months,cint
         en_dt=add_months(nowdate(),1)
         qry="update `tabSite Master` set flag=1 ,expiry_date='"+en_dt+"' where name='"+cstr(res[0][0])+"'"
@@ -117,7 +154,7 @@ def multitenanct(from_test=False):
                         "parenttype":"Admin Details",
                         "admin": eml,
                         "site_name":ste
-                }).insert()
+        }).insert()
 	headers = {'content-type': 'application/x-www-form-urlencoded'}
         sup={'usr':'administrator','pwd':'admin'}
         url = 'http://'+st+'/api/method/login'
@@ -132,7 +169,50 @@ def multitenanct(from_test=False):
         url = 'http://'+st+'/api/resource/User/Administrator'
         frappe.errprint(url)
         frappe.errprint('data='+json.dumps(vldt))
-        response = requests.put(url, data='data='+json.dumps(vldt), headers=headers)
+        response = requests.put(url, data='data='+json.dumps(vldt), headers=headers)        
+        item_code = frappe.db.sql("""select b.item_code from `tabSales Invoice` a, `tabSales Invoice Item` b where a.name=b.parent and a.customer=%s """, res[0][1])
+        for ic in item_code:
+			qr="select no_of_users,validity from `tabItem` where name = '"+cstr(ic[0])+"'"
+			pro = frappe.db.sql(qr)
+			frappe.errprint(pro)
+			if (pro [0][0]== 0) and (pro[0][1]>0):
+				frappe.errprint("0 and >0")
+				vldt={}
+				vldt['validity']=pro[0][1]
+				vldt['country']=cnt
+				vldt['email_id_admin']=eml
+				url = 'http://'+st+'/api/resource/User/Administrator'
+				frappe.errprint(url)
+				frappe.errprint('data='+json.dumps(vldt))
+				response = requests.put(url, data='data='+json.dumps(vldt), headers=headers)
+				frappe.errprint("responce")
+				frappe.errprint(response.text)
+			elif (pro [0][0]>0 ) and (pro[0][1]==0):
+				frappe.errprint(">0 and 0")
+				vldtt={}
+				vldtt['no_of_users']=pro[0][0]
+				vldtt['country']=cnt
+				vldtt['email_id_admin']=eml
+				url = 'http://'+st+'/api/resource/User/Administrator'
+				frappe.errprint(url)
+				frappe.errprint('data='+json.dumps(vldtt))
+				response = requests.put(url, data='data='+json.dumps(vldtt), headers=headers)
+				frappe.errprint("responce")
+				frappe.errprint(response.text)				
+			elif (pro [0][0]> 0) and (pro[0][1]>0):
+				frappe.errprint(" >0 and >0")
+				user_val={}
+				user_val['validity']=pro [0][1]
+				user_val['user_name']=pro [0][0]
+				user_val['flag']='false'
+				url = 'http://'+st+'/api/resource/User Validity'
+				frappe.errprint(url)
+				frappe.errprint('data='+json.dumps(user_val))
+				response = requests.post(url, data='data='+json.dumps(user_val), headers=headers)
+				frappe.errprint("responce")
+				frappe.errprint(response.text)		
+			else:
+				frappe.errprint("0 and 0")
 
 
 def assign_support():
@@ -301,4 +381,211 @@ def disable_user():
                                 support_ticket={}
                                 support_ticket['enabled']=0
                                 response = requests.put(url, data='data='+json.dumps(support_ticket), headers=headers)
+
+
+def lead_sales_followup():
+    from frappe.utils.email_lib import sendmail
+    etemp=frappe.db.sql("select subject,message from `tabTemplate Types` where name='Sales follow up'")
+    qry="select lead_name,email_id,date(creation) from `tabLead` where DATEDIFF(curdate(),creation) <=64 and WEEKDAY(curdate())=0 and customer is null"
+    res = frappe.db.sql(qry)
+    for r in res:
+        #frappe.errprint(r)
+        msg=etemp[0][1].replace('first_name',r[0]).replace('act_date',cstr(r[2]))
+        sendmail(r[1], subject=etemp[0][0], msg = msg)
+
+
+
+def promotional_follow():
+    from frappe.utils.email_lib import sendmail
+    etemp=frappe.db.sql("select subject,message from `tabTemplate Types` where name='Promotional Followup'")
+    #frappe.errprint(etemp)
+    qry="select lead_name,email_id,DATE_ADD(curdate(),INTERVAL 7 DAY) from `tabLead` where DATEDIFF(curdate(),creation) >=64 and WEEKDAY(curdate())=0 and customer is null"
+    res = frappe.db.sql(qry)
+    #frappe.errprint(res)
+    for r in res:
+        msg=etemp[0][1].replace('first_name',r[0]).replace('current_date+7',cstr(r[2]))
+        sendmail(r[1], subject=etemp[0][0], msg = msg)
+
+
+def success_renewal(doc,method):
+    pass
+    # from frappe.utils.email_lib import sendmail
+    # #frappe.errprint("in success_renewal")
+    # etemp=frappe.db.sql("select subject,message from `tabTemplate Types` where name='Successful renewal'")
+    # email_qry="select email_id__if_administrator from `tabSite Master` where client_name='"+doc.customer+"'"
+    # #frappe.errprint(email_qry)
+    # res=frappe.db.sql(email_qry)
+    # #frappe.errprint(res[0][0])
+    # date_query=frappe.db.sql("""select DATE_ADD(curdate(),INTERVAL 1 year)""")
+    # #frappe.errprint(res)
+    # #frappe.errprint(date_query[0][0])
+    # if res:
+    #     msg=etemp[0][1].replace('first_name',doc.customer).replace('sub_end_date',cstr(date_query[0][0]))
+    #     #frappe.errprint(msg)
+    #     sendmail(res[0][0], subject=etemp[0][0], msg = msg)
+
+    
+
+def ticket_submission(doc,method):
+    from frappe.utils.email_lib import sendmail
+    frappe.errprint("ticket submission")
+    etemp=frappe.db.sql("select subject,message from `tabTemplate Types` where name='Contact us, Feedback & Ticket submission'")
+    #frappe.errprint(doc.name)
+    #frappe.errprint(doc.customer)
+    msg=etemp[0][1].replace('first_name',doc.customer).replace('ticket_number',doc.name)
+    sendmail(doc.raised_by, subject=etemp[0][0], msg = msg)
+
+def feedback_submission(doc,method):
+    from frappe.utils.email_lib import sendmail
+    etemp=frappe.db.sql("select subject,message from `tabTemplate Types` where name='Contact us, Feedback & Ticket submission'")
+    query="select client_name from `tabSite Master` where email_id__if_administrator='"+doc.raised_by+"'"
+    #frappe.errprint(query)
+    res=frappe.db.sql(query)
+    #frappe.errprint(res[0][0])
+    msg=etemp[0][1].replace('first_name',res[0][0]).replace('ticket_number',doc.name)
+    sendmail(doc.raised_by, subject=etemp[0][0], msg = msg)
+
+def before15_renewal_date():
+    from frappe.utils.email_lib import sendmail
+    etemp=frappe.db.sql("select subject,message from `tabTemplate Types` where name='15 days before renewal date'")
+    query="select client_name,expiry_date,email_id__if_administrator from `tabSite Master`"
+    res=frappe.db.sql(query)
+
+    for r in res:
+        qr="select datediff('"+cstr(r[1])+"',curdate())"
+        #frappe.errprint(qr)
+        diff=frappe.db.sql(qr)
+        #frappe.errprint(diff[0][0])
+        if(diff[0][0]==15):
+            msg=etemp[0][1].replace('first_name',r[0]).replace('renewal date',cstr(r[1]))
+            sendmail(r[2], subject=etemp[0][0], msg = msg)
+
+
+def before1_renewal_date():
+    from frappe.utils.email_lib import sendmail
+    etemp=frappe.db.sql("select subject,message from `tabTemplate Types` where name='1 Working day before renewal date'")
+    query="select client_name,expiry_date,email_id__if_administrator from `tabSite Master`"
+    res=frappe.db.sql(query)
+    for r in res:
+        qr="select datediff('"+cstr(r[1])+"',curdate())"
+        #frappe.errprint(qr)
+        diff=frappe.db.sql(qr)
+        #frappe.errprint(diff[0][0])
+        if(diff[0][0]==1):
+            msg=etemp[0][1].replace('first_name',r[0]).replace('renewal date',cstr(r[1]))
+            sendmail(r[2], subject=etemp[0][0], msg = msg)
+
+
+def on_renewal_date():
+    from frappe.utils.email_lib import sendmail
+    etemp=frappe.db.sql("select subject,message from `tabTemplate Types` where name='On renewal date'")
+    query="select client_name,expiry_date,email_id__if_administrator from `tabSite Master`"
+    res=frappe.db.sql(query)
+    for r in res:
+        qr="select datediff('"+cstr(r[1])+"',curdate())"
+        #frappe.errprint(qr)
+        diff=frappe.db.sql(qr)
+        #frappe.errprint(diff[0][0])
+        if(diff[0][0]==0):
+            msg=etemp[0][1].replace('first_name',r[0]).replace('Date',cstr(r[1]))
+            sendmail(r[2], subject=etemp[0][0], msg = msg)
+
+
+def after1_exp_date():
+    from frappe.utils.email_lib import sendmail
+    etemp=frappe.db.sql("select subject,message from `tabTemplate Types` where name='1 working day after expiry date'")
+    query="select client_name,expiry_date,email_id__if_administrator from `tabSite Master`"
+    res=frappe.db.sql(query)
+    for r in res:
+        qr="select datediff(curdate(),'"+cstr(r[1])+"')"
+        #frappe.errprint(qr)
+        diff=frappe.db.sql(qr)
+        #frappe.errprint(diff[0][0])
+        if(diff[0][0]==(-1)):
+            msg=etemp[0][1].replace('first_name',r[0])
+            sendmail(r[2], subject=etemp[0][0], msg = msg)
+
+def on_grace_date():
+    from frappe.utils.email_lib import sendmail
+    etemp=frappe.db.sql("select subject,message from `tabTemplate Types` where name='On 7th grace day'")
+    query="select client_name,expiry_date,email_id__if_administrator from `tabSite Master`"
+    res=frappe.db.sql(query)
+    for r in res:
+        qr="select datediff(curdate(),'"+cstr(r[1])+"')"
+        #frappe.errprint(qr)
+        diff=frappe.db.sql(qr)
+        #frappe.errprint(diff[0][0])
+        if(diff[0][0]==(-7)):
+            msg=etemp[0][1].replace('first_name',r[0])
+            sendmail(r[2], subject=etemp[0][0], msg = msg)
+
+def after_grace_date():
+    from frappe.utils.email_lib import sendmail
+    etemp=frappe.db.sql("select subject,message from `tabTemplate Types` where name='On grace period expiry'")
+    query="select client_name,expiry_date,email_id__if_administrator from `tabSite Master`"
+    res=frappe.db.sql(query)
+    for r in res:
+        qr="select datediff(curdate(),'"+cstr(r[1])+"')"
+        #frappe.errprint(qr)
+        diff=frappe.db.sql(qr)
+        #frappe.errprint(diff[0][0])
+        if(diff[0][0]==(-8)):
+            msg=etemp[0][1].replace('first_name',r[0])
+            sendmail(r[2], subject=etemp[0][0], msg = msg)
+
+def after_deactivation():
+    from frappe.utils.email_lib import sendmail
+    etemp=frappe.db.sql("select subject,message from `tabTemplate Types` where name='1 working day after deactivation'")
+    query="select client_name,expiry_date,email_id__if_administrator from `tabSite Master`"
+    res=frappe.db.sql(query)
+    for r in res:
+        qr="select datediff(curdate(),'"+cstr(r[1])+"')"
+        #frappe.errprint(qr)
+        diff=frappe.db.sql(qr)
+        #frappe.errprint(diff[0][0])
+        if(diff[0][0]==(-9)):
+            msg=etemp[0][1].replace('first_name',r[0]).replace('Expiry date',cstr(r[1]))
+            sendmail(r[2], subject=etemp[0][0], msg = msg)
+
+
+def on_success_renewal(doc,method):
+    pass
+    # from frappe.utils.email_lib import sendmail
+    # #frappe.errprint("in on success_renewal no 2")
+    # etemp=frappe.db.sql("select subject,message from `tabTemplate Types` where name='On successful renewal'")
+    # query="select name from `tabSales Invoice` where customer='"+doc.customer+"'"
+    # res=frappe.db.sql(query)
+    # if(res[0][0]):
+    #     email_qry="select email_id__if_administrator from `tabSite Master` where client_name='"+doc.customer+"'"
+    #     email_result=frappe.db.sql(email_qry)
+    #     date=frappe.db.sql("select DATE_ADD(curdate(),INTERVAL 1 year)")
+    #     msg=etemp[0][1].replace('first_name',doc.customer).replace('expiry_date',cstr(date[0][0]))
+    #     if email_result:
+    #         sendmail(email_result[0][0], subject=etemp[0][0], msg = msg)
+
+
+
+
+
+
+
+
+            
+
+
+
+
+
+        
+
+    
+
+
+
+
+
+
+
+
+
                                                                                                                        

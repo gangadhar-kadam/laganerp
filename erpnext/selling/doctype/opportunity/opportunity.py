@@ -105,19 +105,20 @@ class Opportunity(TransactionBase):
 		
 
 	def on_submit(self):
-		if self.lead:
-			frappe.get_doc("Lead", self.lead).set_status(update=True)
-		frappe.errprint("creation site master")
-		from frappe.utils import get_url, cstr
-		if get_url()=='http://stich1.tailorpad.com':
-                        frappe.errprint("creating site fro oppt")
-                        frappe.get_doc({
-                                        "doctype": "Site Master",
-                                        "client_name": self.customer_name,
-                                        "site_name":  ((self.customer_name).replace(' ','_')).lower()+".tailorpad.com",
-                                        "email_id__if_administrator": self.contact_email,
-                                        "country": self.country
-                                }).insert()
+		pass
+		# if self.lead:
+		# 	frappe.get_doc("Lead", self.lead).set_status(update=True)
+		# frappe.errprint("creation site master")
+		# from frappe.utils import get_url, cstr
+		# if get_url()=='http://stich1.tailorpad.com':
+  #                       frappe.errprint("creating site fro oppt")
+  #                       frappe.get_doc({
+  #                                       "doctype": "Site Master",
+  #                                       "client_name": self.customer_name,
+  #                                       "site_name":  ((self.customer_name).replace(' ','_')).lower()+".tailorpad.com",
+  #                                       "email_id__if_administrator": self.contact_email,
+  #                                       "country": self.country
+  #                               }).insert()
 
 
 	def on_cancel(self):

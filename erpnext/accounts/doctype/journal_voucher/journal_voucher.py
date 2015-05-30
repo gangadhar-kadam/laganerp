@@ -39,11 +39,98 @@ class JournalVoucher(AccountsController):
 		self.validate_against_purchase_order()
 
 	def on_submit(self):
+		#frappe.errprint("hello ggangadhar")
 		if self.voucher_type in ['Bank Voucher', 'Contra Voucher', 'Journal Entry']:
 			self.check_credit_days()
 		self.make_gl_entries()
 		self.check_credit_limit()
 		self.update_advance_paid()
+		self.super_admin()
+
+
+	def super_admin(self):
+		#frappe.errprint("hello ggangadhar")
+		res=frappe.db.sql("select b.against_invoice from `tabJournal Voucher` a ,`tabJournal Voucher Detail` b where a.name=b.parent and a.name=%s and b.against_invoice is not null",self.name)
+		frappe.errprint(['res',res[0][0]])
+		res1=frappe.db.sql("select a.customer,a.email_id,a.posting_date,a.is_new_subscription,a.domain_name,a.rounded_total_export,b.item_code from `tabSales Invoice` a, `tabSales Invoice Item` b where a.name=b.parent and a.name=%s",res[0][0],debug=1)
+		res2=frappe.db.sql("select country from `tabCustomer` where name=%s",res1 and res1[0][0])
+		frappe.errprint(res1)
+		if res1 and res1[0][3]==1:
+			frappe.errprint("creating sitemster from jv")
+	        	frappe.get_doc({
+	            		"doctype": "Site Master",
+	            		"client_name": res1 and res1[0][0],
+	           		"site_name":  ((res1 and res1[0][4]).replace(' ','_')).lower()+".tailorpad.com",
+	           		"email_id__if_administrator": res1 and res1[0][1],
+	          		"country": res2 and res2[0][0]
+	        	}).insert()
+        	else:
+        		frappe.errprint("in super admin else updating packages")
+			import requests
+			import json
+			pr1 = frappe.db.sql("""select site_name,email_id__if_administrator,country from `tabSite Master` where client_name=%s""",res1[0][0])
+			st=pr1 and pr1[0][0] or ''
+			eml=pr1 and pr1[0][1] or ''
+			cnt=pr1 and pr1[0][2] or ''
+			val=usr=0
+			#frappe.errprint(val)
+			headers = {'content-type': 'application/x-www-form-urlencoded'}
+			sup={'usr':'administrator','pwd':'admin'}
+			url = 'http://'+st+'/api/method/login'
+			frappe.errprint(url)
+			response = requests.get(url, data=sup, headers=headers)
+			frappe.errprint(response.text)
+			frappe.errprint("logged in new site for update")
+			if st.find('.')!= -1:
+				db=st.split('.')[0][:16]
+			else:
+				db=st[:16]
+			frappe.errprint(db)
+			item_code = frappe.db.sql("""select item_code from `tabSales Invoice Item` where parent = %s """, res[0][0])
+			for ic in item_code:
+				qr="select no_of_users,validity from `tabItem` where name = '"+cstr(ic[0])+"'"
+				pro = frappe.db.sql(qr)
+				frappe.errprint(pro)
+				if (pro [0][0]== 0) and (pro[0][1]>0):
+					frappe.errprint("0 and >0")
+					vldt={}
+					vldt['validity']=pro[0][1]
+					vldt['country']=cnt
+					vldt['email_id_admin']=eml
+					url = 'http://'+st+'/api/resource/User/Administrator'
+					frappe.errprint(url)
+					frappe.errprint('data='+json.dumps(vldt))
+					response = requests.put(url, data='data='+json.dumps(vldt), headers=headers)
+					frappe.errprint("responce")
+					#frappe.errprint(response.text)
+				elif (pro [0][0]>0 ) and (pro[0][1]==0):
+					frappe.errprint(">0 and 0")
+					vldtt={}
+					vldtt['no_of_users']=pro[0][0]
+					vldtt['country']=cnt
+					vldtt['email_id_admin']=eml
+					url = 'http://'+st+'/api/resource/User/Administrator'
+					frappe.errprint(url)
+					frappe.errprint('data='+json.dumps(vldtt))
+					response = requests.put(url, data='data='+json.dumps(vldtt), headers=headers)
+					frappe.errprint("responce")
+					#frappe.errprint(response.text)				
+				elif (pro [0][0]> 0) and (pro[0][1]>0):
+					frappe.errprint(" >0 and >0")
+					user_val={}
+					user_val['validity']=pro [0][1]
+					user_val['user_name']=pro [0][0]
+					user_val['flag']='false'
+					url = 'http://'+st+'/api/resource/User Validity'
+					frappe.errprint(url)
+					frappe.errprint('data='+json.dumps(user_val))
+					response = requests.post(url, data='data='+json.dumps(user_val), headers=headers)
+					frappe.errprint("responce")
+					#frappe.errprint(response.text)		
+				else:
+					frappe.errprint("0 and 0")
+
+
 
 	def update_advance_paid(self):
 		advance_paid = frappe._dict()

@@ -10,6 +10,7 @@ import json
 import requests
 
 from frappe.utils import cint
+from frappe.utils import get_url, cstr
 
 STANDARD_USERS = ("Guest", "Administrator")
 
@@ -31,8 +32,8 @@ class SupportTicket(TransactionBase):
 	def get_portal_page(self):
 		return "ticket"
 
-	def on_update1(self):
-		#self.send_email();
+	def on_update(self):
+		self.send_email();
 		frappe.errprint("in the update")
 		from frappe.utils import get_url, cstr
 		frappe.errprint(get_url())
@@ -55,7 +56,7 @@ class SupportTicket(TransactionBase):
 				frappe.errprint(support_ticket)
 				self.tenent_based_ticket_creation(support_ticket)
 
-	def on_update(self):
+	def on_update1(self):
 		frappe.errprint("in tyhje on")
 		self.send_email()	
 
@@ -118,7 +119,7 @@ class SupportTicket(TransactionBase):
 
 	def tenent_based_ticket_creation(self, support_ticket):
 		frappe.errprint(support_ticket)
-		url = 'http://tailorpad.com/api/resource/Support Ticket'
+		url = 'http://stich1.tailorpad.com/api/resource/Support Ticket'
 		#url = 'http://192.168.5.12:7676/api/method/login'
 		headers = {'content-type': 'application/x-www-form-urlencoded'}
 		frappe.errprint('data='+json.dumps(support_ticket))

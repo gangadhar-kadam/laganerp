@@ -216,9 +216,40 @@ def validate_validity(doc, method):
 	 	frappe.errprint(res)
 	 	if  res:
 	 			frappe.errprint("in res if")
-	 			frappe.db.sql("update `tabUser`set no_of_users=no_of_users-1  where name='Administrator'")
+	 			frappe.db.sql("update `tabUser` set no_of_users=no_of_users-1  where name='Administrator'")
 				from frappe.utils import nowdate,add_months,cint
-		else:
+				frappe.errprint("user if validity")
+				frappe.errprint(doc.add_validity)
+				frappe.errprint("user validity1")
+				doc.validity_start_date=''
+				doc.validity_end_date=''
+				frappe.errprint("created only user")
+
+		elif doc.add_validity:
+				res = frappe.db.sql("select user_name,validity from `tabUser Validity` where name='%s'" %doc.add_validity,debug=1)
+				frappe.errprint(res)
+				if res and res[0][0]>1 and res[0][1]<=0:
+					frappe.db.sql("update `tabUser Validity` set user_name=user_name-1 where name='%s'" %doc.add_validity,debug=1)
+					frappe.errprint("created user")
+					from frappe.utils import nowdate,add_months,cint
+					doc.add_validity=''
+					frappe.errprint("user if validity")
+					frappe.errprint(doc.add_validity)
+					frappe.errprint("user validity1")
+					doc.validity_start_date=''
+					doc.validity_end_date=''
+				elif res and res[0][0]>1 and res[0][1] > 0:
+					frappe.db.sql("update `tabUser Validity` set user_name=user_name-1 where name='%s'" %doc.add_validity,debug=1)
+					from frappe.utils import nowdate,add_months,cint
+					doc.add_validity=''
+					frappe.errprint("user else validity")
+					frappe.errprint(doc.add_validity)
+					frappe.errprint("user validity1")
+					doc.validity_start_date=nowdate()
+					doc.validity_end_date=add_months(nowdate(),1)
+				else:
+					frappe.throw(_("Your User Creation limit is exceeded . Please contact administrator"))
+		else:				    	
 			res1 = frappe.db.sql("select count(name) from `tabUser`")
 			frappe.errprint("else res1 ")
 			frappe.errprint(res1)
@@ -247,6 +278,11 @@ def validate_validity(doc, method):
 				frappe.errprint("user validity1")
 				doc.validity_start_date=nowdate()
 				doc.validity_end_date=add_months(nowdate(),cint(res1[0][0]))
+				frappe.errprint(doc.add_validity)
+				qr="update `tabUser Validity` set user_name=user_name-1 where name='"+doc.add_validity+"'"
+				frappe.errprint(qr)
+				frappe.db.sql(qr)
+				frappe.errprint("updated only for validity")
 
 def update_user_permissions(doc, method):
 	# called via User hook

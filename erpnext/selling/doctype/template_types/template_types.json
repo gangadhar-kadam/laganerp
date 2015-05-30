@@ -1,9 +1,8 @@
 {
- "allow_attach": 0, 
  "allow_copy": 0, 
  "allow_import": 0, 
  "allow_rename": 0, 
- "autoname": "field:subject", 
+ "autoname": "field:event_type", 
  "creation": "2014-08-23 11:51:58.085733", 
  "custom": 0, 
  "docstatus": 0, 
@@ -30,16 +29,28 @@
    "set_only_once": 0
   }, 
   {
-   "fieldname": "message", 
-   "fieldtype": "Text Editor", 
-   "label": "Message", 
-   "permlevel": 0
+   "fieldname": "column_break_2", 
+   "fieldtype": "Column Break", 
+   "permlevel": 0, 
+   "precision": ""
   }, 
   {
    "fieldname": "event_type", 
    "fieldtype": "Select", 
    "label": "Event type", 
-   "options": "\nSales Order Submit\nNew User\nNew Support Ticket", 
+   "options": "\nTrial Registration\nSales follow up\nPromotional Followup\nSuccessful first purchase\nSuccessful renewal\nContact us, Feedback & Ticket submission\n15 days before renewal date\n1 Working day before renewal date\nOn renewal date\n1 working day after expiry date\nOn 7th grace day\nOn grace period expiry\n1 working day after deactivation\nOn successful renewal", 
+   "permlevel": 0
+  }, 
+  {
+   "fieldname": "section_break_4", 
+   "fieldtype": "Section Break", 
+   "permlevel": 0, 
+   "precision": ""
+  }, 
+  {
+   "fieldname": "message", 
+   "fieldtype": "Text Editor", 
+   "label": "Message", 
    "permlevel": 0
   }
  ], 
@@ -50,7 +61,7 @@
  "is_submittable": 0, 
  "issingle": 0, 
  "istable": 0, 
- "modified": "2014-09-02 11:07:30.788333", 
+ "modified": "2015-01-01 18:19:32.211546", 
  "modified_by": "Administrator", 
  "module": "Selling", 
  "name": "Template Types", 

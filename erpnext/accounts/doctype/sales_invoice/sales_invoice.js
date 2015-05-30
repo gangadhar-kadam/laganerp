@@ -44,10 +44,10 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 
 	refresh: function(doc, dt, dn) {
 		this._super();
-
+		cur_frm.add_fetch("customer", "company", "customer_email_id");
 		cur_frm.cscript.is_opening(doc, dt, dn);
 		cur_frm.dashboard.reset();
-
+		cur_frm.add_fetch("customer", "email_id", "email_id");
 		if(doc.docstatus==1) {
 			cur_frm.appframe.add_button('View Ledger', function() {
 				frappe.route_options = {
@@ -157,9 +157,9 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 	},
 
 	customer: function() {
+		cur_frm.add_fetch("customer", "email_id", "email_id");
 		var me = this;
 		if(this.frm.updating_party_details) return;
-
 		erpnext.utils.get_party_details(this.frm,
 			"erpnext.accounts.party.get_party_details", {
 				posting_date: this.frm.doc.posting_date,
@@ -194,6 +194,9 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 		this.calculate_outstanding_amount(false);
 		this.frm.refresh_fields();
 	},
+
+
+	
 
 	write_off_amount: function() {
 		this.write_off_outstanding_amount_automatically();
@@ -272,6 +275,15 @@ cur_frm.cscript.is_opening = function(doc, dt, dn) {
 	hide_field('aging_date');
 	if (doc.is_opening == 'Yes') unhide_field('aging_date');
 }
+
+cur_frm.cscript.is_new_subscription = function(doc) {
+	hide_field('domain_name');
+	if (doc.is_new_subscription == 1) unhide_field('domain_name');
+	this.frm.toggle_reqd("domain_name", cint(this.frm.doc.is_new_subscription) == 1);
+	if (doc.is_new_subscription == 0) hide_field('domain_name');
+	if (doc.is_new_subscription == 0) set_field_permlevel('email_id', 1);
+}
+
 
 cur_frm.cscript['Make Delivery Note'] = function() {
 	frappe.model.open_mapped_doc({

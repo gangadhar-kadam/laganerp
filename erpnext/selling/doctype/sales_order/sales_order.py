@@ -165,8 +165,8 @@ class SalesOrder(SellingController):
 		#frappe.errprint("calling superadmin")
         	from frappe.utils import get_url, cstr
 		#frappe.errprint(get_url())
-		if get_url()=='http://stich1.tailorpad.com':
-			self.superadmin()
+		# if get_url()=='http://stich1.tailorpad.com':
+		# 	self.superadmin()
 		
 
 	def on_cancel(self):

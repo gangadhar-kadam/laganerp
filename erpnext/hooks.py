@@ -46,6 +46,7 @@ doc_events = {
 	"Comment": {
 		"on_update": "erpnext.home.make_comment_feed"
 	},
+
 	"Stock Entry": {
 		"on_submit": "erpnext.stock.doctype.material_request.material_request.update_completed_qty",
 		"on_cancel": "erpnext.stock.doctype.material_request.material_request.update_completed_qty"
@@ -59,6 +60,18 @@ doc_events = {
 		"erpnext.hr.doctype.employee.employee.update_user_permissions",
 		"erpnext.hr.doctype.employee.employee.update_users"
 		],
+	},
+	"Journal Voucher":{
+		"on_submit": [
+		"erpnext.setup.doctype.site_master.site_master.success_renewal",
+		"erpnext.setup.doctype.site_master.site_master.on_success_renewal"
+		],
+	},
+	"Feed Back":{
+		"on_update": "erpnext.setup.doctype.site_master.site_master.feedback_submission"
+	},
+	"Support Ticket":{
+		"on_update": "erpnext.setup.doctype.site_master.site_master.ticket_submission"
 	}
 }
 
@@ -66,20 +79,24 @@ scheduler_events = {
 	"all": [
 		"erpnext.support.doctype.support_ticket.get_support_mails.get_support_mails",
 		"erpnext.hr.doctype.job_applicant.get_job_applications.get_job_applications",
-		"erpnext.selling.doctype.lead.get_leads.get_leads",
-		"erpnext.setup.doctype.site_master.site_master.multitenanct",
-		"erpnext.setup.doctype.site_master.site_master.create_support",
-		"erpnext.setup.doctype.site_master.site_master.create_feedback",
-		"erpnext.setup.doctype.site_master.site_master.assign_support",
-		"erpnext.setup.doctype.site_master.site_master.disable_user",
-		"erpnext.setup.doctype.site_master.site_master.add_validity",
+		"erpnext.setup.doctype.site_master.site_master.multitenanct"
+		
 		
 	],
 	"daily": [
 		"erpnext.controllers.recurring_document.create_recurring_documents",
 		"erpnext.stock.utils.reorder_item",
 		"erpnext.setup.doctype.email_digest.email_digest.send",
-		"erpnext.support.doctype.support_ticket.support_ticket.auto_close_tickets"
+		"erpnext.support.doctype.support_ticket.support_ticket.auto_close_tickets",
+		"erpnext.setup.doctype.site_master.site_master.before15_renewal_date",
+		"erpnext.setup.doctype.site_master.site_master.before1_renewal_date",
+		"erpnext.setup.doctype.site_master.site_master.on_renewal_date",
+		"erpnext.setup.doctype.site_master.site_master.after1_exp_date",
+		"erpnext.setup.doctype.site_master.site_master.on_grace_date",
+		"erpnext.setup.doctype.site_master.site_master.after_grace_date",
+		"erpnext.setup.doctype.site_master.site_master.lead_sales_followup",
+		"erpnext.setup.doctype.site_master.site_master.promotional_follow",
+		"erpnext.setup.doctype.site_master.site_master.after_deactivation",
 	],
 	"daily_long": [
 		"erpnext.setup.doctype.backup_manager.backup_manager.take_backups_daily"
